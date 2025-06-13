@@ -55,13 +55,18 @@ void InputHandler::processInput() {
 
 void InputHandler::handleChar(char ch) {
     std::lock_guard<std::mutex> lock(inputMutex);
+
 #ifdef _WIN32
-    if (ch == '\r') {
+    if (ch == '\r')
 #else
-    if (ch == '\n') {
+    if (ch == '\n')
 #endif
+    {
         if (inputBuffer == "q" || inputBuffer == "quit" || inputBuffer == "exit") {
             running = false;
+        }
+        else if (inputBuffer == "clear") {
+            lastSubmittedInput.clear();  // Clear the last response
         }
         else if (!inputBuffer.empty()) {
             lastSubmittedInput = inputBuffer;
@@ -69,9 +74,9 @@ void InputHandler::handleChar(char ch) {
         inputBuffer.clear();
     }
     else if ((ch == 8 || ch == 127) && !inputBuffer.empty()) {
-        inputBuffer.pop_back();
+        inputBuffer.pop_back(); // Handle backspace/delete
     }
-    else if (isprint(ch)) {
-        inputBuffer += ch;
+    else if (std::isprint(static_cast<unsigned char>(ch))) {
+        inputBuffer += ch; // Handle normal printable character
     }
-    }
+}
